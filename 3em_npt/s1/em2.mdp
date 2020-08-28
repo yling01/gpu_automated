@@ -1,5 +1,5 @@
-title    = Energy minimization for peptide in solvent 
-cpp      = /usr/bin/cpp           ; Preprocessor
+;title    = Energy minimization for peptide in solvent ; The mdp entry is obsolete
+;cpp      = /usr/bin/cpp          ; Preprocessor       ; The mdp entry is obsolete
 define   = -DFLEXIBLE             ; include flexible water
 
 
@@ -13,16 +13,20 @@ emstep          = 0.01            ; initial step size (nm)
 
 
 ; Output control
+nstcalcenergy   = 1               ; Frequency to calculate the energies
 nstenergy       = 1               ; Frequency to write energies to energy file
+;                                 ; should be a multiple of nstcalcenergy, the default of nstcalcenergy
+;                                 ; is 100, so it should be set explicitly.
 nstlog          = 1               ; Frequency to write energies to log file
 energygrps      = System          ; Which energy group(s) to write to energy file
 
 
 ; Neighbor searching
-nstlist         = 1               ; Frequency to update neighbor list
+cutoff-scheme   = Verlet
+nstlist         = 10              ; Frequency to update neighbor list, for verlet optimal nstlist is >= 10, with GPUs >= 20
 ns_type         = grid            ; Method to determine neighbor list
-pbc             = xyz             ; Periodici boundary conditions in all directions
-rlist           = 0.8             ; Cut-off distance for the short-range neighbor list
+pbc             = xyz             ; Periodic boundary conditions in all directions
+;rlist           = 0.8             ; Cut-off distance for the short-range neighbor list. For verlet, rlist is ignored. But I don't think it hurts to be put here.
 
 
 ; Electrostatic interation
@@ -39,5 +43,3 @@ DispCorr        = Ener            ; Apply long range dispersion correction for e
 fourierspacing  = 0.12            ; Grid spacing for FFT grid when using PME
 pme_order       = 4               ; Interpolation order for PME, 4 = cubic
 ewald_rtol      = 1e-5            ; Relative strength of Ewald-shifted potential at rcoulomb
-
-cutoff-scheme   = Verlet

@@ -48,7 +48,7 @@ do
     cp cx_rsff2_tip3p.top ../../4bemeta/s${i}
 
     cd ../../4bemeta/s${i}
-    sed -i s/SYSTEMNAME/${sequence}${i}/ submit.job
+    sed -i s/SYSTEMNAME/${sequence}/ submit.job
     sed -i s/TASKNUMBER/${num_replica}/ submit.job
     for j in `seq 0 $(($numReplica - 1))`
     do
@@ -57,7 +57,7 @@ do
     done
     grep "fudge" dump*log &> fudge_check.txt
 
-    python writeBemeta.py --gro npt.gro
+    python writeBemeta.py --gro npt2.gro
 
 
     cd ../../

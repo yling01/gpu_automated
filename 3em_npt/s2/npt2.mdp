@@ -1,4 +1,4 @@
-title    = Equilibration at NPT ensemble without constraint
+;title    = Equilibration at NPT ensemble without constraint   ; The mdp entry is obsolete
 
 
 ; Run control
@@ -10,8 +10,9 @@ nsteps          = 50000           ; Simulation time 100 ps
 ; Output control
 nstxout         = 5000            ; Frequency to write coordinates to trajectory file
 nstvout         = 5000            ; Frequency to write velocities to trajectory file
-nstxtcout       = 5000            ; Frequency to write coordinates to XTC trajectory
-nstenergy       = 5000            ; Frequency to write energies to energy file
+;nstxtcout       = 5000            ; Frequency to write coordinates to XTC trajectory (obsolete)
+nstxout-compressed = 5000        ; Frequency to write coordinates to XTC trajectory
+nstenergy       = 5000            ; Frequency to write energies to energy file, note the value should be a multiple of nstcalcenergy (default 100)
 nstlog          = 5000            ; Frequency to write energies to log file
 energygrps      = System          ; Which energy group(s) to write to energy file
 
@@ -25,9 +26,9 @@ lincs_order     = 4               ; Also related to accuracy
 
 
 ; Neighbor searching
+cutoff-scheme   = Verlet
 ns_type         = grid            ; Method to determine neighbor list
-nstlist         = 5               ; Frequency to update neighbor list
-rlist           = 1.0             ; Cut-off distance for the short-range neighbor list
+nstlist         = 10               ; Frequency to update neighbor list
 pbc             = xyz             ; Periodic boundary conditions in all directions
 
 
@@ -62,8 +63,5 @@ tau_p           = 2.0                ; Time constant (ps)
 ref_p           = 1.0                ; Reference pressure (bar)
 compressibility = 4.5e-5             ; Isothermal compressibility of water, bar^-1
 
-
 ; Velocity generation
 gen_vel         = no                 ; Velocity generation is off
-
-cutoff-scheme   = Verlet

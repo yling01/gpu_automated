@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -p linlab
 #SBATCH -N 1 -n TASKNUMBER -c 4
-#SBATCH -J SYSTEMNAME
+#SBATCH -J SYSTEMNAME1
 #SBATCH -o runout.%j
 #SBATCH -e runerr.%j
 #SBATCH -t 7-00:00:00
@@ -19,5 +19,5 @@ export PLUMED_KERNEL=/cluster/tufts/ysl8/jovan/gromacs_linlab_avx2/plumed/lib/li
 source /cluster/tufts/ysl8/jovan/gromacs_linlab_avx2/bin/GMXRC.bash
 
 nvidia-smi -ac 5001,1590
-mpirun -np TASKNUMBER gmx_mpi mdrun -ntomp 4 -nb gpu -v -s start -deffnm prod -plumed bemeta -multi 15 -replex 2500 
+mpirun -np TASKNUMBER gmx_mpi mdrun -ntomp 4 -nb gpu -v -s start -deffnm prod -plumed bemeta -multi TASKNUMBER -replex 2500 
 python check_trajectory.py --seq SYSTEMNAME

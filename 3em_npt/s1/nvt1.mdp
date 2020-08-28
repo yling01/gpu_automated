@@ -1,4 +1,4 @@
-title    = Equilibration at NVT ensemble 
+;title    = Equilibration at NVT ensemble  ; The mdp entry is obsolete
 define   = -DPOSRES               ; position restrain the potein
 
 
@@ -11,8 +11,9 @@ nsteps          = 25000           ; Simulation time 50 ps
 ; Output control
 nstxout         = 25000           ; Frequency to write coordinates to trajectory file 
 nstvout         = 25000           ; Frequency to write velocities to trajectory file
-nstxtcout       = 25000           ; Frequency to write coordinates to XTC trajectory
-nstenergy       = 100             ; Frequency to write energies to energy file
+;nstxtcout       = 25000           ; Frequency to write coordinates to XTC trajectory (obsolete)
+nstxout-compressed = 25000        ; Frequency to write coordinates to XTC trajectory
+nstenergy       = 100             ; Frequency to write energies to energy file, note the value should be a multiple of nstcalcenergy (default 100)
 nstlog          = 100             ; Frequency to write energies to log file
 energygrps      = System          ; Which energy group(s) to write to energy file
 
@@ -26,9 +27,9 @@ lincs_order     = 4               ; Also related to accuracy
 
 
 ; Neighbor searching
+cutoff-scheme   = Verlet
 ns_type         = grid            ; Method to determine neighbor list
-nstlist         = 5               ; Frequency to update neighbor list
-rlist           = 1.0             ; Cut-off distance for the short-range neighbor list
+nstlist         = 10               ; Frequency to update neighbor list
 pbc             = xyz             ; Periodic boundary conditions in all directions
 
 
@@ -62,7 +63,5 @@ pcoupl          = no              ; No pressure coupling in NVT
 
 ; Velocity generation
 gen_vel         = yes             ; Assign velocities from Maxwell distribution
-gen_temp        = 300.0            ; Temperature from Maxwell distribution
-gen_seed        = -1              ; Random number generator seed
-
-cutoff-scheme   = Verlet 
+gen_temp        = 300.0
+gen_seed        = -1
