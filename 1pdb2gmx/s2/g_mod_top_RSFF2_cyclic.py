@@ -1,4 +1,6 @@
-# MODIFIED BY SMM TO TREAT CYCLIC PEPTIDES
+# MODIFIED BY SMM TO TREAT CYCLIC PEPTIDES and Aidan to prevent HIS/unknown residue issue
+
+import sys
 vdw_H_N       = "   1    0.270   5.0  ;  !  H ... +N  destab. (-140,20), alpha shape "
 vdw_H_O       = "   1    0.200   2.0  ;  !  H ... O   stabilize C5 conformer "
 vdw_O_C       = "   1    0.260   2.0  ;  ! -O ... C   lower the phi = 0 barrier"
@@ -231,7 +233,9 @@ ofile_name = argv[2]
 #ifile_name = 'test.old.top'
 #ofile_name = 'test.new.top'
 
-ifile = open( ifile_name, 'r' )
+availRes = ['GLY', 'ALA', 'PRO', 'ASP', 'ASN', 'GLU', 'GLN', 'LYS', 'NLE', 'ARG', 'MET', 'LEU', 'PHE', 'TYR', 'TRP', 'VAL', 'ILE', 'THR', 'SER', 'CYS', 'HID', 'HIE', 'HIP']
+
+ifile = file( ifile_name, 'r' )
 Lines = ifile.readlines()
 ifile.close
 
@@ -258,36 +262,54 @@ class Residue :
         
         self.ter = 'None'
 
+aa = "NULL"
 for line in Lines :
-    if i_res_old > -999 and line[0] != ';' :
+    if i_res_old > -999:
         words = line.split()
         if len(words) == 0 :
+	    if Res.aa == "HIS":
+		while Res.aa != "HID" and Res.aa != "HIE" and Res.aa != "HIP":
+			Res.aa = input("Please enter which protonation state of HIS you are using at the C terminal (HID, HIE, or HIP):")
             Protein.append( Res )
             break
-        i_atom = int(words[0])
-        i_res = int(words[2])
-        aa = words[3]
-        atom = words[4]
-        if i_res != i_res_old :
-            try :
-                Protein.append( Res )
-            except :
-                pass
-            Res = Residue( i_res, aa )
-            i_res_old = i_res
-        
-        setattr( Res, atom, i_atom )
-        
-        if len(Anames) == i_atom :
-            Anames.append( atom )
-        else :
-            print('Fatal Error: wrong atom numbers !')
+
+	if words[0] == ";" and words[1] == "residue":
+		if words[2] == "1" and words[3] == "HIS":
+			while aa != "HID" and aa != "HIE" and aa != "HIP":
+				aa = input("Please enter which protonation state of HIS you are using at the N terminal (HID, HIE, or HIP):")
+		elif words[5] == "HID" or words[5] == "HIE" or words[5] == "HIP":
+			aa = words[5]
+		else: 
+			aa = words[3]
+	else:
+		i_atom = int(words[0])
+		i_res = int(words[2])
+		atom = words[4]
+		if i_res != i_res_old :
+		    try :
+			Protein.append( Res )
+		    except :
+			pass
+		    Res = Residue( i_res, aa )
+		    i_res_old = i_res
+		
+		setattr( Res, atom, i_atom )
+		
+		if len(Anames) == i_atom :
+		    Anames.append( atom )
+		else :
+		    print('Fatal Error: wrong atom numbers !')
             
     if ';   nr       type  resnr residue' in line :
         i_res_old = 0
 
 Len = len(Protein)
 print(Len, 'residues  and ', len(Anames)-1, 'atoms')
+
+for res in Protein:
+	if res.aa not in availRes:
+		print("ERROR: RSFF2 info on ", res.aa, "not available")
+		sys.exit()
 
 for i in range( Len ) :
     Protein[i].Get_Ter_Type()
@@ -808,7 +830,7 @@ for line in Lines :
         if len(words) == 0 :
             in_pairs, in_angle, in_dih = False, False, False
 
-ofile = open( ofile_name, 'w' )
+ofile = file( ofile_name, 'w' )
 for line in NewLines :
         ofile.write( line )
 ofile.close

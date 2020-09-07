@@ -120,18 +120,17 @@ if __name__ == "__main__":
     print("\n!!!NOTE:Test Version Use With Causion!!!\n")
     print("\n!!!If multiple gro files are found, one will be chosen randomly!!!\n")
     parser = optparse.OptionParser()
-    parser.add_option('--seq', dest = 'seq', default = '')
-    parser.add_option('--gro', dest = 'gro', default = '')
-    parser.add_option('--cutoff', dest = 'cutoff', default = '150')
-    parser.add_option('--cyclic', dest = 'cyclic', default = 'True')
+    parser.add_option('--seq', dest='seq', default='')
+    parser.add_option('--gro', dest='gro', default='')
+    parser.add_option('--cutoff', dest='cutoff', default='90')
+    parser.add_option('--cyclic', dest='cyclic', default='True')
+    parser.add_option('--writeOmega', dest='writeOmega', default='False')
     (options, args) = parser.parse_args()
     seq = options.seq
     gro = options.gro
 
-    if options.cyclic.upper()[0] == "T":
-        cyclic = True
-    else:
-        cyclic = False
+    cyclic = True if options.cyclic.upper()[0] == "T" else False
+    writeOmega = True if options.writeOmega.upper()[0] == "T" else False
 
     cutoff = float(options.cutoff)
     while not seq:
@@ -163,6 +162,10 @@ if __name__ == "__main__":
             u = mda.Universe(topology_files[0], trajectory_file)
             num_frame = len(u.trajectory)
             omega_angles = calculate_omega(u, 0, num_frame, cyclic)
+            if writeOmega:
+                fileName = trajectory_file.split(".")[0] + "_omega.txt"
+                np.savetxt(fileName, omega_angles, fmt="%.5f")
+
             chirality = calculate_chirality(u, 0, num_frame)
             mask1 = pick_out_trans(omega_angles, cutoff)
             mask2 = pick_out_chirality(chirality, seq)
