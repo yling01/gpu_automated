@@ -40,9 +40,8 @@ do
     cp cx_rsff2_tip3p.top ../../4bemeta/s${i}
 
     cd ../../4bemeta/s${i}
-    sed -i s/SYSTEMNAME/${sequence}/ submit.job
-    sed -i s/REPLICANUMBER/${num_replica}/ submit.job
-    sed -i s/TASKNUMBER/$((${num_replica} * 5))/ submit.job
+    sed -i s/SYSTEMNAME/${sequence}/g submit.job
+    sed -i s/REPLICANUMBER/${num_replica}/g submit.job
     for j in `seq 0 $((${num_replica} - 1))`
     do
         gmx_mpi grompp -v -f mdrun.mdp -p cx_rsff2_tip3p.top -c npt2.gro -o start${j}.tpr &> grompp${j}.log
