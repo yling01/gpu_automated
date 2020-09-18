@@ -117,8 +117,8 @@ def calculate_phi_psi(u, start, stop, cyclic):
 if __name__ == "__main__":
     print("=" * 80)
     print("\nRunning check_trajectory.py......\n")
-    print("\n!!!NOTE:Test Version Use With Causion!!!\n")
-    print("\n!!!If multiple gro files are found, one will be chosen randomly!!!\n")
+    print("\n...NOTE:Test Version Use With Causion...\n")
+    print("\n...If multiple gro files are found, one will be chosen randomly...\n")
     parser = optparse.OptionParser()
     parser.add_option('--seq', dest='seq', default='')
     parser.add_option('--gro', dest='gro', default='')
@@ -155,8 +155,8 @@ if __name__ == "__main__":
         if not trajectory_files:
             sys.exit("\nExiting...\nNo Trajectory Files Found...\n")
         if len(topology_files) > 1:
-            print("\n!!!Multiple Topology Files (.gro) Found!!!\n")
-            print("!!!A Random One Will Be Used!!!\n")
+            print("\n...Multiple Topology Files (.gro) Found...\n")
+            print("...A Random One Will Be Used...\n")
         for trajectory_file in trajectory_files:
             print("\nWorking on %s\n" % trajectory_file)
             u = mda.Universe(topology_files[0], trajectory_file)
