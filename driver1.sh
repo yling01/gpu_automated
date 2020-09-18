@@ -23,7 +23,7 @@ do
     gmx_mpi mdrun -v -s em.tpr -deffnm em &> mdrun.log
     python check_trajectory.py --seq ${sequence} --gro em.gro
     sleep 2
-    gmx_mpi editconf -f em.gro -o box.gro -bt cubic -d 1.0 &> editconf.log
+    gmx_mpi editconf -f em.gro -o box.gro -bt dodeca -d 1.0 &> editconf.log
     gmx_mpi solvate -cp box.gro -cs spc216.gro -p cx_rsff2_tip3p.top -o solvate.gro &> isolvate.log
 
     gmx_mpi grompp -v -f ion.mdp -c solvate.gro -p cx_rsff2_tip3p.top -o ion.tpr &> grompp.log
