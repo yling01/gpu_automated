@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -p linlab
-#SBATCH -N 1 -n TASKNUMBER -c 2 
+#SBATCH -N 1 -n REPLICANUMBER -c 2
 #SBATCH -t 7-00:00:00
 #SBATCH -J SYSTEMNAME1
-#SBATCH -o runout.%j 				      	
-#SBATCH -e runerr.%j 					 	 
+#SBATCH -o runout.%j
+#SBATCH -e runerr.%j
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:t4:3
 
@@ -20,5 +20,4 @@ module load openmpi/2.1.2
 module load libmatheval
 
 nvidia-smi -ac 5001,1590
-mpiexec -np TASKNUMBER gmx_mpi mdrun -v -ntomp 2 -nb gpu -plumed bemeta -multi TASKNUMBER -replex 2500 -s start -deffnm prod
-
+mpiexec -np REPLICANUMBER gmx_mpi mdrun -v -ntomp 2 -nb gpu -plumed bemeta -multi REPLICANUMBER -replex 2500 -s start -deffnm prod
