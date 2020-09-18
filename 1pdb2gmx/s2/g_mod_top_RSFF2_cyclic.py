@@ -1,6 +1,4 @@
-# MODIFIED BY SMM TO TREAT CYCLIC PEPTIDES and Aidan to prevent HIS/unknown residue issue
-
-import sys
+# MODIFIED BY SMM TO TREAT CYCLIC PEPTIDES
 vdw_H_N       = "   1    0.270   5.0  ;  !  H ... +N  destab. (-140,20), alpha shape "
 vdw_H_O       = "   1    0.200   2.0  ;  !  H ... O   stabilize C5 conformer "
 vdw_O_C       = "   1    0.260   2.0  ;  ! -O ... C   lower the phi = 0 barrier"
@@ -44,12 +42,12 @@ dih_G_psi  = "   2.25   -4.75  -15.84    7.66    2.52   -1.02    ; ! psi  for Gl
 dih_A_phi  = "  -2.43   -3.84   13.25    8.40   -9.37   -8.27    ; ! phi  for Ala "
 dih_A_phi_ = "  -2.46    0.83    8.63    8.89   -4.93  -13.98    ; ! phi_ for Ala "
 dih_A_psi  = "   2.94   -1.39  -12.68   -1.56    2.72    3.14    ; ! psi  for Ala "
-dih_A_psi_ = "   2.46   -0.25    4.25   -2.99   -7.01    4.03    ; ! psi_ for Ala " 
+dih_A_psi_ = "   2.46   -0.25    4.25   -2.99   -7.01    4.03    ; ! psi_ for Ala "
 
 dih_C_phi  = "  -2.02   -2.44   17.81    4.69  -12.77   -4.53    ; ! phi  for Cys "
 dih_C_phi_ = "  -2.94    1.42   12.38    6.50   -4.33  -12.46    ; ! phi_ for Cys "
 dih_C_psi  = "   2.02   -0.77  -11.40   -0.50    1.16   -0.13    ; ! psi  for Cys "
-dih_C_psi_ = "   2.50   -2.37    2.87   -5.60   -5.92   10.79    ; ! psi_ for Cys " 
+dih_C_psi_ = "   2.50   -2.37    2.87   -5.60   -5.92   10.79    ; ! psi_ for Cys "
 
 dih_P_phi  = "  -1.07    2.56   -0.98  -16.05    0.00    0.00    ; ! phi for Pro "
 dih_P_phi_ = "   0.00    0.00    0.00    0.00    0.00    0.00    ; ! phi_ for Pro "
@@ -79,17 +77,17 @@ dih_Q_psi_ = "   2.15   -1.91    4.00   -3.17   -6.82    8.20    ; ! psi_ for Gl
 dih_K_phi  = "  -2.18    0.17   15.08    2.28   -6.05   -7.58    ; ! phi  for Lys "
 dih_K_phi_ = "  -2.54    1.59   14.06    2.90  -10.08   -4.60    ; ! phi_ for Lys "
 dih_K_psi  = "   2.57   -0.17  -11.41   -0.41    1.21   -0.33    ; ! psi  for Lys "
-dih_K_psi_ = "   2.27   -2.88    3.83   -4.10   -5.53   10.31    ; ! psi_ for Lys " 
+dih_K_psi_ = "   2.27   -2.88    3.83   -4.10   -5.53   10.31    ; ! psi_ for Lys "
 
 dih_R_phi  = "  -2.90   -1.83   20.24    1.76  -13.08   -3.12    ; ! phi  for Arg "
 dih_R_phi_ = "  -2.47    1.93   14.25    5.88   -6.12  -14.40    ; ! phi_ for Arg "
 dih_R_psi  = "   2.22   -1.09  -12.39   -1.48    1.41    1.46    ; ! psi  for Arg "
-dih_R_psi_ = "   2.63   -1.88    3.65   -5.69   -7.08   10.65    ; ! psi_ for Arg " 
+dih_R_psi_ = "   2.63   -1.88    3.65   -5.69   -7.08   10.65    ; ! psi_ for Arg "
 
 dih_M_phi  = "  -2.24   -2.86   19.91    2.37  -15.10   -0.31    ; ! phi  for Met "
 dih_M_phi_ = "  -2.83    1.86   10.20    6.65   -4.45  -13.78    ; ! phi_ for Met "
 dih_M_psi  = "   2.28   -1.03  -11.39   -5.89    0.60    7.51    ; ! psi  for Met "
-dih_M_psi_ = "   2.38    2.70    3.92  -12.41   -8.60   12.63    ; ! psi_ for Met " 
+dih_M_psi_ = "   2.38    2.70    3.92  -12.41   -8.60   12.63    ; ! psi_ for Met "
 
 dih_L_phi  = "  -2.47   -1.02   12.75    3.57   -6.88   -8.22    ; ! phi  for Leu "
 dih_L_phi_ = "  -2.17   -2.98   16.17    2.39  -13.62   -1.94    ; ! phi_ for Leu "
@@ -99,47 +97,47 @@ dih_L_psi_ = "   0.84   -0.31   -5.18   -2.42    1.60    5.34    ; ! psi_ for Le
 dih_F_phi  = "  -7.82   -2.42   15.98    4.88   -9.71   -5.81    ; ! phi  for Phe "
 dih_F_phi_ = "  -9.40    1.20    9.63    5.03   -2.32  -12.28    ; ! phi_ for Phe "
 dih_F_psi  = "   2.92   -1.34  -10.79   -4.51    1.11    5.61    ; ! psi  for Phe "
-dih_F_psi_ = "   2.79    0.69   -1.80   -9.23   -1.84   10.71    ; ! psi_ for Phe " 
+dih_F_psi_ = "   2.79    0.69   -1.80   -9.23   -1.84   10.71    ; ! psi_ for Phe "
 
 dih_Y_phi  = "  -8.19   -2.32   16.29    3.85   -9.84   -4.62    ; ! phi  for Tyr "
 dih_Y_phi_ = "  -9.05    1.12    9.43    5.27   -1.95  -12.58    ; ! phi_ for Tyr "
 dih_Y_psi  = "   2.30   -0.87  -10.39   -4.54    1.48    5.76    ; ! psi  for Tyr "
-dih_Y_psi_ = "   2.57    1.98   -1.51  -10.07   -2.04   11.02    ; ! psi_ for Tyr " 
+dih_Y_psi_ = "   2.57    1.98   -1.51  -10.07   -2.04   11.02    ; ! psi_ for Tyr "
 
 dih_W_phi  = "  -9.50   -1.28   20.17    2.00  -15.19   -2.55    ; ! phi  for Trp "
 dih_W_phi_ = "  -9.95    0.39   16.00    3.66  -13.68   -5.26    ; ! phi_ for Trp "
 dih_W_psi  = "   0.67   -1.69   -5.54   -2.24   -2.42    4.10    ; ! psi  for Trp "
-dih_W_psi_ = "   0.65    0.40    1.95   -4.62   -6.55    8.07    ; ! psi_ for Trp " 
+dih_W_psi_ = "   0.65    0.40    1.95   -4.62   -6.55    8.07    ; ! psi_ for Trp "
 
 dih_V_phi  = "  -2.21   -6.14   22.96   11.38  -15.99   -5.77    ; ! phi  for Val "
 dih_V_phi_ = "  -2.35    0.10   19.58   10.94  -12.29  -16.63    ; ! phi_ for Val "
 dih_V_psi  = "   2.07   -0.18  -18.32   -3.39    5.67    2.08    ; ! psi  for Val "
-dih_V_psi_ = "   2.68    0.00   -6.90  -10.60    1.66   16.28    ; ! psi_ for Val " 
+dih_V_psi_ = "   2.68    0.00   -6.90  -10.60    1.66   16.28    ; ! psi_ for Val "
 
 dih_I_phi  = "  -2.53   -7.82   26.77   12.70  -21.00   -6.01    ; ! phi  for Ile "
 dih_I_phi_ = "  -2.62    0.27   20.57   12.05  -12.06  -19.68    ; ! phi_ for Ile "
 dih_I_psi  = "   2.73    0.41  -18.35   -2.56    6.09    0.69    ; ! psi  for Ile "
-dih_I_psi_ = "   2.59   -0.75   -6.97  -12.12    3.65   18.45    ; ! psi_ for Ile " 
+dih_I_psi_ = "   2.59   -0.75   -6.97  -12.12    3.65   18.45    ; ! psi_ for Ile "
 
 dih_S_phi  = "  -2.45   -2.34   20.68    1.22  -12.89    0.30    ; ! phi  for Ser "
 dih_S_phi_ = "  -2.27    0.57   17.10    7.08   -7.75  -14.11    ; ! phi_ for Ser "
 dih_S_psi  = "   2.58   -0.60   -8.40   -2.23   -1.70    3.15    ; ! psi  for Ser "
-dih_S_psi_ = "   1.74    2.03    5.95   -5.43  -11.81    9.57    ; ! psi_ for Ser " 
+dih_S_psi_ = "   1.74    2.03    5.95   -5.43  -11.81    9.57    ; ! psi_ for Ser "
 
 dih_T_phi  = "  -2.88   -4.43   21.90    9.14  -16.02   -5.42    ; ! phi  for Thr "
 dih_T_phi_ = "  -2.70   -2.07   22.08    8.27  -14.68  -12.31    ; ! phi_ for Thr "
 dih_T_psi  = "   2.53   -1.19   -8.10    1.34   -3.31    0.65    ; ! psi  for Thr "
-dih_T_psi_ = "   2.23    1.35   -0.60    7.88   -7.19   -3.93    ; ! psi_ for Thr " 
+dih_T_psi_ = "   2.23    1.35   -0.60    7.88   -7.19   -3.93    ; ! psi_ for Thr "
 
 dih_Hd_phi  = "  -9.80  -0.67   18.40   -3.25  -13.49    2.72    ; ! phi  for HisD "
 dih_Hd_phi_ = "  -9.65   2.33   11.33    4.23   -2.21  -13.13    ; ! phi_ for HisD "
 dih_Hd_psi  = "   1.64  -0.80   -8.80   -0.93   -0.77    1.56    ; ! psi  for HisD "
-dih_Hd_psi_ = "   2.42   0.56   -0.78   -3.79   -2.88    6.06    ; ! psi_ for HisD " 
+dih_Hd_psi_ = "   2.42   0.56   -0.78   -3.79   -2.88    6.06    ; ! psi_ for HisD "
 
 dih_He_phi  = "  -9.88  -1.43   19.34    6.96  -10.82   -6.14    ; ! phi  for HisE "
 dih_He_phi_ = "  -9.79   3.70   13.59    8.58   -5.67  -14.95    ; ! phi_ for HisE "
 dih_He_psi  = "   2.74  -1.20  -10.55   -2.24    0.74    3.36    ; ! psi  for HisE "
-dih_He_psi_ = "   2.56   0.17    2.33   -4.21   -7.06    6.04    ; ! psi_ for HisE " 
+dih_He_psi_ = "   2.56   0.17    2.33   -4.21   -7.06    6.04    ; ! psi_ for HisE "
 
 dih_Zeroes  = "   0.0 0.0 0.0 0.0 0.0 0.0 ;  ! zeroes for chi "
 
@@ -233,9 +231,7 @@ ofile_name = argv[2]
 #ifile_name = 'test.old.top'
 #ofile_name = 'test.new.top'
 
-availRes = ['GLY', 'ALA', 'PRO', 'ASP', 'ASN', 'GLU', 'GLN', 'LYS', 'NLE', 'ARG', 'MET', 'LEU', 'PHE', 'TYR', 'TRP', 'VAL', 'ILE', 'THR', 'SER', 'CYS', 'HID', 'HIE', 'HIP']
-
-ifile = file( ifile_name, 'r' )
+ifile = open( ifile_name, 'r' )
 Lines = ifile.readlines()
 ifile.close
 
@@ -259,57 +255,39 @@ class Residue :
         if hasattr( self, 'OC2' ) :
             self.ter = 'COO-'
             return
-        
+
         self.ter = 'None'
 
-aa = "NULL"
 for line in Lines :
-    if i_res_old > -999:
+    if i_res_old > -999 and line[0] != ';' :
         words = line.split()
         if len(words) == 0 :
-	    if Res.aa == "HIS":
-		while Res.aa != "HID" and Res.aa != "HIE" and Res.aa != "HIP":
-			Res.aa = input("Please enter which protonation state of HIS you are using at the C terminal (HID, HIE, or HIP):")
             Protein.append( Res )
             break
+        i_atom = int(words[0])
+        i_res = int(words[2])
+        aa = words[3]
+        atom = words[4]
+        if i_res != i_res_old :
+            try :
+                Protein.append( Res )
+            except :
+                pass
+            Res = Residue( i_res, aa )
+            i_res_old = i_res
 
-	if words[0] == ";" and words[1] == "residue":
-		if words[2] == "1" and words[3] == "HIS":
-			while aa != "HID" and aa != "HIE" and aa != "HIP":
-				aa = input("Please enter which protonation state of HIS you are using at the N terminal (HID, HIE, or HIP):")
-		elif words[5] == "HID" or words[5] == "HIE" or words[5] == "HIP":
-			aa = words[5]
-		else: 
-			aa = words[3]
-	else:
-		i_atom = int(words[0])
-		i_res = int(words[2])
-		atom = words[4]
-		if i_res != i_res_old :
-		    try :
-			Protein.append( Res )
-		    except :
-			pass
-		    Res = Residue( i_res, aa )
-		    i_res_old = i_res
-		
-		setattr( Res, atom, i_atom )
-		
-		if len(Anames) == i_atom :
-		    Anames.append( atom )
-		else :
-		    print('Fatal Error: wrong atom numbers !')
-            
+        setattr( Res, atom, i_atom )
+
+        if len(Anames) == i_atom :
+            Anames.append( atom )
+        else :
+            print('Fatal Error: wrong atom numbers !')
+
     if ';   nr       type  resnr residue' in line :
         i_res_old = 0
 
 Len = len(Protein)
 print(Len, 'residues  and ', len(Anames)-1, 'atoms')
-
-for res in Protein:
-	if res.aa not in availRes:
-		print("ERROR: RSFF2 info on ", res.aa, "not available")
-		sys.exit()
 
 for i in range( Len ) :
     Protein[i].Get_Ter_Type()
@@ -340,7 +318,7 @@ for i in range( Len ) :
           Res_next = Protein[0]
         if Res_next.aa not in ( 'NA', 'CL' ) :   # true residues
             has_Res_next = True
-    
+
     if Res.aa == 'GLY' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_G_phi) )
@@ -372,7 +350,7 @@ for i in range( Len ) :
         if has_Res_next :
             Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_P_psi) )
             Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_P_psi_) )
-        
+
     if Res.aa == 'ASP' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_D_phi) )
@@ -392,7 +370,7 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
                 Pair_15.append( (Res.H, Res.CG, vdw_chiD_HCG) )
-    
+
     if Res.aa == 'ASN' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_N_phi) )
@@ -410,7 +388,7 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
             Pair_15.append( (Res.C, Res.OD1, vdw_chiX_ODC) )
-    
+
     if Res.aa == 'GLU' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_E_phi) )
@@ -423,7 +401,7 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
             Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
-    
+
     if Res.aa == 'GLN' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Q_phi) )
@@ -436,7 +414,7 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
             Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
-    
+
     if Res.aa == 'LYS' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_K_phi) )
@@ -449,7 +427,7 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
             Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
-    
+
     if Res.aa == 'NLE' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_K_phi) )
@@ -461,8 +439,8 @@ for i in range( Len ) :
             if Res.ter not in (  'NH3+' ):
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )            
-    
+            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
+
     if Res.aa == 'ARG' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_R_phi) )
@@ -475,7 +453,7 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
             Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
- 
+
     if Res.aa == 'MET' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_M_phi) )
@@ -516,13 +494,13 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
             Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
-    
+
     if Res.aa == 'TYR' :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Y_phi) )
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_Y_phi_) )
             Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )            
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
         if has_Res_next :
             Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N,  dih_Y_psi) )
             Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_Y_psi_) )
@@ -650,7 +628,7 @@ for i in range( Len ) :
                 Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
                 Pair_15.append( (Res.H, Res.O, vdw_H_O) )
             Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
- 
+
     if Res.aa in ( 'HIP',) :
         if has_Res_prev :
             Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_He_phi) )
@@ -672,21 +650,21 @@ for i in range( Len ) :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_P_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_P_chi1_) )
         Dih.append( (Res.CA, Res.N, Res.CD, Res.CG, dih_Zeroes) )
-    
+
     if Res.aa == 'GLU' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_E_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_E_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_E_chi2) )
         Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE1, dih_E_chi3) )
         Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE2, dih_Zeroes) )
-        
+
     if Res.aa == 'GLN' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Q_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Q_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_Q_chi2) )
         Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE1, dih_Q_chi3) )
         Dih.append( (Res.CB, Res.CG, Res.CD, Res.NE2, dih_Zeroes) )
-        
+
     if Res.aa in ('HID',) :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Hd_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
@@ -702,64 +680,64 @@ for i in range( Len ) :
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND1, dih_Hd_chi2) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Hd_chi2_) )
-    
+
     if Res.aa == 'VAL' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG2, dih_V_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG2, dih_V_chi1_) )
-        
+
     if Res.aa == 'ILE' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG1, dih_I_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG1, dih_I_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG1, Res.CD, dih_I_chi2) )
         Dih.append( (Res.CG2, Res.CB, Res.CG1, Res.CD, dih_Zeroes) )
-    
-    if Res.aa == 'THR' :       
+
+    if Res.aa == 'THR' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.OG1, dih_T_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.OG1, dih_T_chi1_) )
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG2, dih_Zeroes) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG2, dih_Zeroes) )
         Dih.append( (Res.CA, Res.CB, Res.OG1, Res.HG1, dih_Zeroes) )
-        
+
     if Res.aa == 'SER' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.OG, dih_S_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.OG, dih_S_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.OG, Res.HG, dih_Zeroes) )
-        
+
     if Res.aa == 'CYS' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.SG, dih_C_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.SG, dih_C_chi1_) )
-    
+
     if Res.aa == 'LEU' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_L_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_L_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_L_chi2) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_L_chi2) )
-        
+
     if Res.aa in ('PHE', 'TYR') :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_F_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_F_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_F_chi2) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Zeroes) )
-        
+
     if Res.aa == 'TRP' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_W_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_W_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_W_chi2) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Zeroes) )
-        
+
     if Res.aa == 'MET' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_M_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_M_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.SD, dih_M_chi2) )
         Dih.append( (Res.CB, Res.CG, Res.SD, Res.CE, dih_M_chi3) )
-        
+
     if Res.aa == 'ARG' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_R_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_R_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_R_chi2) )
         Dih.append( (Res.CB, Res.CG, Res.CD, Res.NE, dih_R_chi3) )
         Dih.append( (Res.CG, Res.CD, Res.NE, Res.CZ, dih_R_chi4) )
-        
+
     if Res.aa in ('LYS', 'NLE') :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_K_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_K_chi1_) )
@@ -773,13 +751,13 @@ for i in range( Len ) :
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_D_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD1, dih_D_chi2) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD2, dih_Zeroes) )
-    
+
     if Res.aa == 'ASN' :
         Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_N_chi1) )
         Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_N_chi1_) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD1, dih_N_chi2) )
         Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND2, dih_Zeroes) )
-            
+
 NewLines = [ ]
 in_pairs, in_angle, in_dih = False, False, False
 
@@ -801,7 +779,7 @@ for line in Lines :
                 break
         if not found :
             NewLines.append( line )
-    
+
     if len(words) == 0 and in_pairs :
         writen = True
         in_pairs = False
@@ -812,14 +790,14 @@ for line in Lines :
         for each in Pair_15 :
             NewLines.append( '%5i %5i\n' %(each[0],each[1]) )
         NewLines.append( '\n' )
-    
+
     if not writen :
         if 'amber99sb.mod4CPs.ff/forcefield.itp' in line :
             NewLines.append( '#include "RSFF2/RSFF2.itp" \n' )
-            
+
         elif 'amber99sb.mod4CPs.ff/tip3p.itp' in line :
             NewLines.append( '#include "RSFF2/tip3p.itp" \n' )
-                 
+
         else :
             NewLines.append( line )
 
@@ -830,7 +808,7 @@ for line in Lines :
         if len(words) == 0 :
             in_pairs, in_angle, in_dih = False, False, False
 
-ofile = file( ofile_name, 'w' )
+ofile = open( ofile_name, 'w' )
 for line in NewLines :
         ofile.write( line )
 ofile.close

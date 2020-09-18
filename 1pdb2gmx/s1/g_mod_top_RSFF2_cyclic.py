@@ -1,6 +1,4 @@
-# MODIFIED BY SMM TO TREAT CYCLIC PEPTIDES and Aidan to prevent HIS/unknown residue issue
-
-import sys
+# MODIFIED BY SMM TO TREAT CYCLIC PEPTIDES
 vdw_H_N       = "   1    0.270   5.0  ;  !  H ... +N  destab. (-140,20), alpha shape "
 vdw_H_O       = "   1    0.200   2.0  ;  !  H ... O   stabilize C5 conformer "
 vdw_O_C       = "   1    0.260   2.0  ;  ! -O ... C   lower the phi = 0 barrier"
@@ -233,9 +231,7 @@ ofile_name = argv[2]
 #ifile_name = 'test.old.top'
 #ofile_name = 'test.new.top'
 
-availRes = ['GLY', 'ALA', 'PRO', 'ASP', 'ASN', 'GLU', 'GLN', 'LYS', 'NLE', 'ARG', 'MET', 'LEU', 'PHE', 'TYR', 'TRP', 'VAL', 'ILE', 'THR', 'SER', 'CYS', 'HID', 'HIE', 'HIP']
-
-ifile = file( ifile_name, 'r' )
+ifile = open( ifile_name, 'r' )
 Lines = ifile.readlines()
 ifile.close
 
@@ -244,593 +240,575 @@ Protein = [ ]
 Anames = [ '*' ]
 
 class Residue :
-	def __init__(self, i_res, aa) :
-		self.i  = i_res
-		self.aa = aa
-	def Get_Ter_Type(self) :
-		if hasattr( self, 'H3' ) :
-			self.ter = 'NH3+'
-			return
-		if hasattr( self, 'OT' ) :
-			self.ter = 'COOH'
-			self.O1 = self.O
-			self.O2 = self.OT
-			return
-		if hasattr( self, 'OC2' ) :
-			self.ter = 'COO-'
-			return
+    def __init__(self, i_res, aa) :
+        self.i  = i_res
+        self.aa = aa
+    def Get_Ter_Type(self) :
+        if hasattr( self, 'H3' ) :
+            self.ter = 'NH3+'
+            return
+        if hasattr( self, 'OT' ) :
+            self.ter = 'COOH'
+            self.O1 = self.O
+            self.O2 = self.OT
+            return
+        if hasattr( self, 'OC2' ) :
+            self.ter = 'COO-'
+            return
 
-		self.ter = 'None'
+        self.ter = 'None'
 
-aa = "NULL"
 for line in Lines :
-	if i_res_old > -999:
-		words = line.split()
-		if len(words) == 0 :
-		if Res.aa == "HIS":
-	while Res.aa != "HID" and Res.aa != "HIE" and Res.aa != "HIP":
-	Res.aa = input("Please enter which protonation state of HIS you are using at the C terminal (HID, HIE, or HIP):")
-			Protein.append( Res )
-			break
+    if i_res_old > -999 and line[0] != ';' :
+        words = line.split()
+        if len(words) == 0 :
+            Protein.append( Res )
+            break
+        i_atom = int(words[0])
+        i_res = int(words[2])
+        aa = words[3]
+        atom = words[4]
+        if i_res != i_res_old :
+            try :
+                Protein.append( Res )
+            except :
+                pass
+            Res = Residue( i_res, aa )
+            i_res_old = i_res
 
-	if words[0] == ";" and words[1] == "residue":
-	if words[2] == "1" and words[3] == "HIS":
-	while aa != "HID" and aa != "HIE" and aa != "HIP":
-	aa = input("Please enter which protonation state of HIS you are using at the N terminal (HID, HIE, or HIP):")
-	elif words[5] == "HID" or words[5] == "HIE" or words[5] == "HIP":
-	aa = words[5]
-	else:
-	aa = words[3]
-	else:
-	i_atom = int(words[0])
-	i_res = int(words[2])
-	atom = words[4]
-	if i_res != i_res_old :
-		try :
-	Protein.append( Res )
-		except :
-	pass
-		Res = Residue( i_res, aa )
-		i_res_old = i_res
+        setattr( Res, atom, i_atom )
 
-	setattr( Res, atom, i_atom )
+        if len(Anames) == i_atom :
+            Anames.append( atom )
+        else :
+            print('Fatal Error: wrong atom numbers !')
 
-	if len(Anames) == i_atom :
-		Anames.append( atom )
-	else :
-		print('Fatal Error: wrong atom numbers !')
-
-	if ';   nr       type  resnr residue' in line :
-		i_res_old = 0
+    if ';   nr       type  resnr residue' in line :
+        i_res_old = 0
 
 Len = len(Protein)
 print(Len, 'residues  and ', len(Anames)-1, 'atoms')
 
-for res in Protein:
-	if res.aa not in availRes:
-	print("ERROR: RSFF2 info on ", res.aa, "not available")
-	sys.exit()
-
 for i in range( Len ) :
-	Protein[i].Get_Ter_Type()
+    Protein[i].Get_Ter_Type()
 
 Pair_15 = [ ]    # special 1-5 & 1-6 vdw
 Dih = [ ]        # torsions
 
 for i in range( Len ) :
-	Res = Protein[i]
-	has_Res_prev, has_Res_next = False, False
-	if Res.ter not in ['None']:
-		print(Res.ter)
-	else :
-	  #if i > 0 :
-	  if i >= 0 :
-		if i > 0 :
-		  Res_prev = Protein[i-1]
-		if i == 0 :
-		  Res_prev = Protein[Len-1]
-		if Res_prev.aa not in ( 'NA', 'CL' ) :   # true residues
-			has_Res_prev = True
+    Res = Protein[i]
+    has_Res_prev, has_Res_next = False, False
+    if Res.ter not in ['None']:
+        print(Res.ter)
+    else :
+      #if i > 0 :
+      if i >= 0 :
+        if i > 0 :
+          Res_prev = Protein[i-1]
+        if i == 0 :
+          Res_prev = Protein[Len-1]
+        if Res_prev.aa not in ( 'NA', 'CL' ) :   # true residues
+            has_Res_prev = True
 
-	  #if i < Len - 1 :
-	  if i <= Len - 1 :
-		if i < Len -1 :
-		  Res_next = Protein[i+1]
-		if i == Len - 1 :
-		  Res_next = Protein[0]
-		if Res_next.aa not in ( 'NA', 'CL' ) :   # true residues
-			has_Res_next = True
+      #if i < Len - 1 :
+      if i <= Len - 1 :
+        if i < Len -1 :
+          Res_next = Protein[i+1]
+        if i == Len - 1 :
+          Res_next = Protein[0]
+        if Res_next.aa not in ( 'NA', 'CL' ) :   # true residues
+            has_Res_next = True
 
-	if Res.aa == 'GLY' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_G_phi) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_G_psi) )
-			if Res.ter not in ( 'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+    if Res.aa == 'GLY' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_G_phi) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_G_psi) )
+            if Res.ter not in ( 'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
 
-	if Res.aa == 'ALA' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_A_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_A_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_A_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_A_psi_) )
-			if Res.ter not in ( 'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+    if Res.aa == 'ALA' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_A_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_A_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_A_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_A_psi_) )
+            if Res.ter not in ( 'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
 
-	if Res.aa == 'PRO' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_P_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_P_phi_) )
-			Dih.append( (Res_prev.C, Res.N, Res.CD, Res.CG, dih_Zeroes) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_P_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_P_psi_) )
+    if Res.aa == 'PRO' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_P_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_P_phi_) )
+            Dih.append( (Res_prev.C, Res.N, Res.CD, Res.CG, dih_Zeroes) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_P_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_P_psi_) )
 
-	if Res.aa == 'ASP' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_D_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_D_phi_) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiD_CG_O) )
-			Pair_15.append( (Res_prev.C, Res.CG, vdw_chiD_CG_C) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			if Res.ter not in ('COO-'):
-				Pair_15.append( (Res.O, Res.CG, vdw_chiD_CGO) )
-				Pair_15.append( (Res.OD1, Res.O, vdw_chiD_ODO) )
-				Pair_15.append( (Res.OD2, Res.O, vdw_chiD_ODO) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_D_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_D_psi_) )
-			Pair_15.append( (Res.CG, Res_next.N, vdw_chiD_CGN) )
-			if Res.ter not in ( 'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-				Pair_15.append( (Res.H, Res.CG, vdw_chiD_HCG) )
+    if Res.aa == 'ASP' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_D_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_D_phi_) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiD_CG_O) )
+            Pair_15.append( (Res_prev.C, Res.CG, vdw_chiD_CG_C) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            if Res.ter not in ('COO-'):
+                Pair_15.append( (Res.O, Res.CG, vdw_chiD_CGO) )
+                Pair_15.append( (Res.OD1, Res.O, vdw_chiD_ODO) )
+                Pair_15.append( (Res.OD2, Res.O, vdw_chiD_ODO) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_D_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_D_psi_) )
+            Pair_15.append( (Res.CG, Res_next.N, vdw_chiD_CGN) )
+            if Res.ter not in ( 'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+                Pair_15.append( (Res.H, Res.CG, vdw_chiD_HCG) )
 
-	if Res.aa == 'ASN' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_N_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_N_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.C, Res.CG, vdw_chiX_CC) )
-			if Res.ter not in ('COO-'):
-				Pair_15.append( (Res.CG, Res.O, vdw_chiX_CO) )
-				Pair_15.append( (Res.ND2, Res.O, vdw_chiN_NDO) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_N_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_N_psi_) )
-			Pair_15.append( (Res.CG, Res_next.N, vdw_chiX_CN) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.C, Res.OD1, vdw_chiX_ODC) )
+    if Res.aa == 'ASN' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_N_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_N_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.C, Res.CG, vdw_chiX_CC) )
+            if Res.ter not in ('COO-'):
+                Pair_15.append( (Res.CG, Res.O, vdw_chiX_CO) )
+                Pair_15.append( (Res.ND2, Res.O, vdw_chiN_NDO) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_N_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_N_psi_) )
+            Pair_15.append( (Res.CG, Res_next.N, vdw_chiX_CN) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.C, Res.OD1, vdw_chiX_ODC) )
 
-	if Res.aa == 'GLU' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_E_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_E_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_E_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_E_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
+    if Res.aa == 'GLU' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_E_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_E_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_E_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_E_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
 
-	if Res.aa == 'GLN' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Q_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_Q_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_Q_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_Q_psi_) )
-			if Res.ter not in ( 'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
+    if Res.aa == 'GLN' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Q_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_Q_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_Q_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_Q_psi_) )
+            if Res.ter not in ( 'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
 
-	if Res.aa == 'LYS' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_K_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_K_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_K_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_K_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
+    if Res.aa == 'LYS' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_K_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_K_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_K_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_K_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
 
-	if Res.aa == 'NLE' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_K_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_K_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_K_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_K_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
+    if Res.aa == 'NLE' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_K_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_K_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_K_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_K_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
 
-	if Res.aa == 'ARG' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_R_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_R_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_R_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_R_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
+    if Res.aa == 'ARG' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_R_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_R_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_R_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_R_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
 
-	if Res.aa == 'MET' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_M_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_M_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_M_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_M_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
+    if Res.aa == 'MET' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_M_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_M_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_M_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_M_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiQ_CGO) )
 
-	if Res.aa == 'LEU' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_L_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_L_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiL_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_L_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_L_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiL_CG_O) )
+    if Res.aa == 'LEU' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_L_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_L_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiL_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_L_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_L_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiL_CG_O) )
 
-	if Res.aa == 'PHE' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_F_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_F_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N,  dih_F_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_F_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
+    if Res.aa == 'PHE' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_F_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_F_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N,  dih_F_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_F_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
 
-	if Res.aa == 'TYR' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Y_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_Y_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N,  dih_Y_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_Y_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
+    if Res.aa == 'TYR' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Y_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_Y_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N,  dih_Y_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_Y_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
 
-	if Res.aa == 'TRP' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_W_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_W_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiW_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_W_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_W_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiW_CGO) )
+    if Res.aa == 'TRP' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_W_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_W_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiW_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_W_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_W_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiW_CGO) )
 
-	if Res.aa == 'VAL' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C, dih_V_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_V_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG1, vdw_chiI_CG_O) )
-			Pair_15.append( (Res_prev.O, Res.CG2, vdw_chiI_CG_O) )
+    if Res.aa == 'VAL' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C, dih_V_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_V_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG1, vdw_chiI_CG_O) )
+            Pair_15.append( (Res_prev.O, Res.CG2, vdw_chiI_CG_O) )
 #            Pair_15.append( (Res.H, Res.CG1, vdw_chi_HG) )
 #            Pair_15.append( (Res.H, Res.CG2, vdw_chi_HG) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_V_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_V_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG1, Res.O, vdw_chiI_CGO) )
-			Pair_15.append( (Res.CG2, Res.O, vdw_chiI_CGO) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_V_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_V_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG1, Res.O, vdw_chiI_CGO) )
+            Pair_15.append( (Res.CG2, Res.O, vdw_chiI_CGO) )
 
-	if Res.aa == 'ILE' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C, dih_I_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_I_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG1, vdw_chiI_CG_O) )
-			Pair_15.append( (Res_prev.O, Res.CG2, vdw_chiI_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_I_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_I_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG1, Res.O, vdw_chiI_CGO) )
-			Pair_15.append( (Res.CG2, Res.O, vdw_chiI_CGO) )
+    if Res.aa == 'ILE' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C, dih_I_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_I_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG1, vdw_chiI_CG_O) )
+            Pair_15.append( (Res_prev.O, Res.CG2, vdw_chiI_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_I_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_I_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG1, Res.O, vdw_chiI_CGO) )
+            Pair_15.append( (Res.CG2, Res.O, vdw_chiI_CGO) )
 
-	if Res.aa == 'THR' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_T_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_T_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.C, Res.OG1, vdw_chiS_OC) )
-			Pair_15.append( (Res.H, Res.CG2, vdw_chiT_CGH) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_T_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_T_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.OG1, Res_next.N, vdw_chiS_ON) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.OG1, Res.O, vdw_chiS_OO) )
-			Pair_15.append( (Res.CG2, Res.O, vdw_chiT_CGO) )
+    if Res.aa == 'THR' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_T_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_T_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.C, Res.OG1, vdw_chiS_OC) )
+            Pair_15.append( (Res.H, Res.CG2, vdw_chiT_CGH) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_T_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_T_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.OG1, Res_next.N, vdw_chiS_ON) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.OG1, Res.O, vdw_chiS_OO) )
+            Pair_15.append( (Res.CG2, Res.O, vdw_chiT_CGO) )
 
-	if Res.aa == 'SER' :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_S_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_S_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.C, Res.OG, vdw_chiS_OC) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_S_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_S_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.OG, Res_next.N, vdw_chiS_ON) )
-			Pair_15.append( (Res.OG, Res.O, vdw_chiS_OO) )
+    if Res.aa == 'SER' :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_S_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_S_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.C, Res.OG, vdw_chiS_OC) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_S_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_S_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.OG, Res_next.N, vdw_chiS_ON) )
+            Pair_15.append( (Res.OG, Res.O, vdw_chiS_OO) )
 
-	if Res.aa in ( 'CYS',) :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_C_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_C_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_C_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_C_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+    if Res.aa in ( 'CYS',) :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_C_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_C_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_C_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_C_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
 
-	if Res.aa in ( 'HID',) :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Hd_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_Hd_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_Hd_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_Hd_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
+    if Res.aa in ( 'HID',) :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_Hd_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_Hd_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_Hd_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_Hd_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
 
-	if Res.aa in ( 'HIE',) :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_He_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_He_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_He_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_He_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
+    if Res.aa in ( 'HIE',) :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_He_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_He_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_He_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_He_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
 
-	if Res.aa in ( 'HIP',) :
-		if has_Res_prev :
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_He_phi) )
-			Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_He_phi_) )
-			Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
-			Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
-		if has_Res_next :
-			Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_He_psi) )
-			Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_He_psi_) )
-			if Res.ter not in (  'NH3+' ):
-				Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
-				Pair_15.append( (Res.H, Res.O, vdw_H_O) )
-			Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
+    if Res.aa in ( 'HIP',) :
+        if has_Res_prev :
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.C,  dih_He_phi) )
+            Dih.append( (Res_prev.C, Res.N, Res.CA, Res.CB, dih_He_phi_) )
+            Pair_15.append( (Res_prev.O, Res.C, vdw_O_C) )
+            Pair_15.append( (Res_prev.O, Res.CG, vdw_chiF_CG_O) )
+        if has_Res_next :
+            Dih.append( (Res.N,  Res.CA, Res.C, Res_next.N, dih_He_psi) )
+            Dih.append( (Res.CB, Res.CA, Res.C, Res_next.N, dih_He_psi_) )
+            if Res.ter not in (  'NH3+' ):
+                Pair_15.append( (Res.H, Res_next.N, vdw_H_N) )
+                Pair_15.append( (Res.H, Res.O, vdw_H_O) )
+            Pair_15.append( (Res.CG, Res.O, vdw_chiF_CGO) )
 
 #    if hasattr( Res, 'CG' ) or hasattr( Res, 'CG1' ) or hasattr( Res, 'SG' )\
 #    or hasattr( Res, 'OG1' ) or hasattr( Res, 'OG' ):
 
-	if Res.aa == 'PRO' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_P_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_P_chi1_) )
-		Dih.append( (Res.CA, Res.N, Res.CD, Res.CG, dih_Zeroes) )
+    if Res.aa == 'PRO' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_P_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_P_chi1_) )
+        Dih.append( (Res.CA, Res.N, Res.CD, Res.CG, dih_Zeroes) )
 
-	if Res.aa == 'GLU' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_E_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_E_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_E_chi2) )
-		Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE1, dih_E_chi3) )
-		Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE2, dih_Zeroes) )
+    if Res.aa == 'GLU' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_E_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_E_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_E_chi2) )
+        Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE1, dih_E_chi3) )
+        Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE2, dih_Zeroes) )
 
-	if Res.aa == 'GLN' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Q_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Q_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_Q_chi2) )
-		Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE1, dih_Q_chi3) )
-		Dih.append( (Res.CB, Res.CG, Res.CD, Res.NE2, dih_Zeroes) )
+    if Res.aa == 'GLN' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Q_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Q_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_Q_chi2) )
+        Dih.append( (Res.CB, Res.CG, Res.CD, Res.OE1, dih_Q_chi3) )
+        Dih.append( (Res.CB, Res.CG, Res.CD, Res.NE2, dih_Zeroes) )
 
-	if Res.aa in ('HID',) :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Hd_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND1, dih_Hd_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Hd_chi2_) )
-	if Res.aa in ('HIE',) :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Hd_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND1, dih_Hd_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Hd_chi2_) )
-	if Res.aa in ('HIP',) :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Hd_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND1, dih_Hd_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Hd_chi2_) )
+    if Res.aa in ('HID',) :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Hd_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND1, dih_Hd_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Hd_chi2_) )
+    if Res.aa in ('HIE',) :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Hd_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND1, dih_Hd_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Hd_chi2_) )
+    if Res.aa in ('HIP',) :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_Hd_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_Hd_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND1, dih_Hd_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Hd_chi2_) )
 
-	if Res.aa == 'VAL' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG2, dih_V_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG2, dih_V_chi1_) )
+    if Res.aa == 'VAL' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG2, dih_V_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG2, dih_V_chi1_) )
 
-	if Res.aa == 'ILE' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG1, dih_I_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG1, dih_I_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG1, Res.CD, dih_I_chi2) )
-		Dih.append( (Res.CG2, Res.CB, Res.CG1, Res.CD, dih_Zeroes) )
+    if Res.aa == 'ILE' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG1, dih_I_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG1, dih_I_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG1, Res.CD, dih_I_chi2) )
+        Dih.append( (Res.CG2, Res.CB, Res.CG1, Res.CD, dih_Zeroes) )
 
-	if Res.aa == 'THR' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.OG1, dih_T_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.OG1, dih_T_chi1_) )
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG2, dih_Zeroes) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG2, dih_Zeroes) )
-		Dih.append( (Res.CA, Res.CB, Res.OG1, Res.HG1, dih_Zeroes) )
+    if Res.aa == 'THR' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.OG1, dih_T_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.OG1, dih_T_chi1_) )
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG2, dih_Zeroes) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG2, dih_Zeroes) )
+        Dih.append( (Res.CA, Res.CB, Res.OG1, Res.HG1, dih_Zeroes) )
 
-	if Res.aa == 'SER' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.OG, dih_S_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.OG, dih_S_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.OG, Res.HG, dih_Zeroes) )
+    if Res.aa == 'SER' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.OG, dih_S_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.OG, dih_S_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.OG, Res.HG, dih_Zeroes) )
 
-	if Res.aa == 'CYS' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.SG, dih_C_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.SG, dih_C_chi1_) )
+    if Res.aa == 'CYS' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.SG, dih_C_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.SG, dih_C_chi1_) )
 
-	if Res.aa == 'LEU' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_L_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_L_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_L_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_L_chi2) )
+    if Res.aa == 'LEU' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_L_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_L_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_L_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_L_chi2) )
 
-	if Res.aa in ('PHE', 'TYR') :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_F_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_F_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_F_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Zeroes) )
+    if Res.aa in ('PHE', 'TYR') :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_F_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_F_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_F_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Zeroes) )
 
-	if Res.aa == 'TRP' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_W_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_W_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_W_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Zeroes) )
+    if Res.aa == 'TRP' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_W_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_W_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD1, dih_W_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD2, dih_Zeroes) )
 
-	if Res.aa == 'MET' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_M_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_M_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.SD, dih_M_chi2) )
-		Dih.append( (Res.CB, Res.CG, Res.SD, Res.CE, dih_M_chi3) )
+    if Res.aa == 'MET' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_M_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_M_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.SD, dih_M_chi2) )
+        Dih.append( (Res.CB, Res.CG, Res.SD, Res.CE, dih_M_chi3) )
 
-	if Res.aa == 'ARG' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_R_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_R_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_R_chi2) )
-		Dih.append( (Res.CB, Res.CG, Res.CD, Res.NE, dih_R_chi3) )
-		Dih.append( (Res.CG, Res.CD, Res.NE, Res.CZ, dih_R_chi4) )
+    if Res.aa == 'ARG' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_R_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_R_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_R_chi2) )
+        Dih.append( (Res.CB, Res.CG, Res.CD, Res.NE, dih_R_chi3) )
+        Dih.append( (Res.CG, Res.CD, Res.NE, Res.CZ, dih_R_chi4) )
 
-	if Res.aa in ('LYS', 'NLE') :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_K_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_K_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_K_chi2) )
-		Dih.append( (Res.CB, Res.CG, Res.CD, Res.CE, dih_K_chi3) )
-		if Res.aa == 'LYS' :
-			Dih.append( (Res.CG, Res.CD, Res.CE, Res.NZ, dih_K_chi4) )
+    if Res.aa in ('LYS', 'NLE') :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_K_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_K_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.CD, dih_K_chi2) )
+        Dih.append( (Res.CB, Res.CG, Res.CD, Res.CE, dih_K_chi3) )
+        if Res.aa == 'LYS' :
+            Dih.append( (Res.CG, Res.CD, Res.CE, Res.NZ, dih_K_chi4) )
 
-	if Res.aa in ('ASP', 'ASPH') :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_D_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_D_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD1, dih_D_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD2, dih_Zeroes) )
+    if Res.aa in ('ASP', 'ASPH') :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_D_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_D_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD1, dih_D_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD2, dih_Zeroes) )
 
-	if Res.aa == 'ASN' :
-		Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_N_chi1) )
-		Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_N_chi1_) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD1, dih_N_chi2) )
-		Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND2, dih_Zeroes) )
+    if Res.aa == 'ASN' :
+        Dih.append( (Res.N, Res.CA, Res.CB, Res.CG, dih_N_chi1) )
+        Dih.append( (Res.C, Res.CA, Res.CB, Res.CG, dih_N_chi1_) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.OD1, dih_N_chi2) )
+        Dih.append( (Res.CA, Res.CB, Res.CG, Res.ND2, dih_Zeroes) )
 
 NewLines = [ ]
 in_pairs, in_angle, in_dih = False, False, False
 
 for line in Lines :
-	words = line.split()
-	writen = False
-	if in_dih and line[0] != ';' and len(words) > 0 :
-		writen = True
-		i = int( words[0] )
-		j = int( words[1] )
-		k = int( words[2] )
-		l = int( words[3] )
-		found = False
-		for each in Dih :
-			if ( i == each[0] and j == each[1] and k == each[2] and l == each[3] ) \
-			or ( l == each[0] and k == each[1] and j == each[2] and i == each[3] ) :
-				NewLines.append( line[:28] + '3' + each[4] + '\n' )     # will have problem if i_atom > 99999
-				found = True
-				break
-		if not found :
-			NewLines.append( line )
+    words = line.split()
+    writen = False
+    if in_dih and line[0] != ';' and len(words) > 0 :
+        writen = True
+        i = int( words[0] )
+        j = int( words[1] )
+        k = int( words[2] )
+        l = int( words[3] )
+        found = False
+        for each in Dih :
+            if ( i == each[0] and j == each[1] and k == each[2] and l == each[3] ) \
+            or ( l == each[0] and k == each[1] and j == each[2] and i == each[3] ) :
+                NewLines.append( line[:28] + '3' + each[4] + '\n' )     # will have problem if i_atom > 99999
+                found = True
+                break
+        if not found :
+            NewLines.append( line )
 
-	if len(words) == 0 and in_pairs :
-		writen = True
-		in_pairs = False
-		for each in Pair_15 :
-			NewLines.append( '%5i %5i' %(each[0],each[1]) )
-			NewLines.append( each[2] + '\n' )
-		NewLines.append( '\n[ exclusions ]\n' )
-		for each in Pair_15 :
-			NewLines.append( '%5i %5i\n' %(each[0],each[1]) )
-		NewLines.append( '\n' )
+    if len(words) == 0 and in_pairs :
+        writen = True
+        in_pairs = False
+        for each in Pair_15 :
+            NewLines.append( '%5i %5i' %(each[0],each[1]) )
+            NewLines.append( each[2] + '\n' )
+        NewLines.append( '\n[ exclusions ]\n' )
+        for each in Pair_15 :
+            NewLines.append( '%5i %5i\n' %(each[0],each[1]) )
+        NewLines.append( '\n' )
 
-	if not writen :
-		if 'amber99sb.mod4CPs.ff/forcefield.itp' in line :
-			NewLines.append( '#include "RSFF2/RSFF2.itp" \n' )
+    if not writen :
+        if 'amber99sb.mod4CPs.ff/forcefield.itp' in line :
+            NewLines.append( '#include "RSFF2/RSFF2.itp" \n' )
 
-		elif 'amber99sb.mod4CPs.ff/tip3p.itp' in line :
-			NewLines.append( '#include "RSFF2/tip3p.itp" \n' )
+        elif 'amber99sb.mod4CPs.ff/tip3p.itp' in line :
+            NewLines.append( '#include "RSFF2/tip3p.itp" \n' )
 
-		else :
-			NewLines.append( line )
+        else :
+            NewLines.append( line )
 
-		if '[ dihedrals ]' in line :
-			in_dih = True
-		if '[ pairs ]' in line :
-			in_pairs = True
-		if len(words) == 0 :
-			in_pairs, in_angle, in_dih = False, False, False
+        if '[ dihedrals ]' in line :
+            in_dih = True
+        if '[ pairs ]' in line :
+            in_pairs = True
+        if len(words) == 0 :
+            in_pairs, in_angle, in_dih = False, False, False
 
-ofile = file( ofile_name, 'w' )
+ofile = open( ofile_name, 'w' )
 for line in NewLines :
-		ofile.write( line )
+        ofile.write( line )
 ofile.close
