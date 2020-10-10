@@ -7,7 +7,7 @@
 #SBATCH -e runerr.%j
 #SBATCH --export=ALL
 #SBATCH --gres=gpu:t4:3
-
+#SBATCH --exclude=pcomp[45-58]
 #SBATCH --mem-per-cpu=1G
 
 export GMXLIB=/cluster/tufts/ylin12/tim/localGMXLIB
